@@ -1,5 +1,5 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 // 1. エントリーポイントのmain関数
 void main() {
@@ -32,105 +32,74 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-  // String _type = "偶数";
-  // Color _color = Colors.blue;
+// main関数、MyApp、MyHomePageはデフォルトから変更がないため省略
 
-  // 5. カウンタが押された時のメソッド
-  void _incrementCounter() {
+class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation _animation;
+
+  // 再生
+  _forward() async {
     setState(() {
-      _counter++;
-      // if (_counter % 2 == 0) {
-      //   _type = "偶数";
-      //   _color = Colors.blue;
-      // } else {
-      //   _type = "奇数";
-      //   _color = Colors.red;
-      // }
+      _animationController.forward();
     });
+  }
+
+  // 停止
+  _stop() async {
+    setState(() {
+      _animationController.stop();
+    });
+  }
+
+  // 逆再生
+  _reverse() async {
+    setState(() {
+      _animationController.reverse();
+    });
+  }
+
+  // 生成
+  @override
+  void initState() {
+    super.initState();
+    _animationController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 1));
+    _animation = _animationController.drive(Tween(begin: 0.0, end: 2.0 * pi));
+  }
+
+  // 破棄
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // 4. MyHomePageの画面を構築する部分
     return Scaffold(
-      // 画面上部のタイトル部分
       appBar: AppBar(
         title: Text(widget.title),
-        //   title: Row(
-        // children: const [
-        //   Icon(Icons.create),
-        //   Text("初めてのタイトル"),
-        // ],
-        // )
       ),
-      // body: Text("HellowWorld"),
-      // body: Column(
-      // children: [
-      //   const Text("Hello World"),
-      //   const Text("ハロー・ワールド"),
-      //   TextButton(
-      //     onPressed: () => {print("ボタンが押された")},
-      //     child: const Text("テキストボタン"),
-      //   ),
-      //   Row(
-      //     mainAxisAlignment: MainAxisAlignment.spaceAround,
-      //     children: const [
-      //       Icon(
-      //         Icons.favorite,
-      //         color: Colors.pink,
-      //         size: 24.0,
-      //       ),
-      //       Icon(
-      //         Icons.audiotrack,
-      //         color: Colors.green,
-      //         size: 30.0,
-      //       ),
-      //       Icon(
-      //         Icons.beach_access,
-      //         color: Colors.blue,
-      //         size: 36.0,
-      //       )
-      //     ],
-      //   )
-      // ],
-//           ),
-//       floatingActionButton: FloatingActionButton(
-//           onPressed: () => {print("押したね？")},
-//           tooltip: 'Increment',
-//           child: const Icon(Icons.timer)),
-//       drawer: const Drawer(child: Center(child: Text("Drawer"))),
-//       endDrawer: const Drawer(child: Center(child: Text("Drawer"))),
-//     );
-//   }
-// }
       body: Center(
-          // child: Column(
-          //   mainAxisAlignment: MainAxisAlignment.center,
-          //   children: <Widget>[
-          //     // 画面の中央に表示されるテキスト
-          //     const Text(
-          //       'You have pushed the button this many times:',
-          //     ),
-          //     // テキストの下に表示されるカウンタ値
-          //     Text(
-          //       '$_counter',
-          //       style: Theme.of(context).textTheme.headline4,
-          //     ),
-          //     // Text('$_type', style: TextStyle(fontSize: 20, color: _color)),
-          //     if (_counter % 2 == 0)
-          //       const Text('偶数です',
-          //           style: TextStyle(fontSize: 20, color: Colors.red))
-          //   ],
-          // ),
-          child: Icon(FontAwesomeIcons.gift, color: Colors.teal)),
-      // 右下の「+」ボタンに対応するフローティングアクションボタン
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+        child: AnimatedBuilder(
+          animation: _animation,
+          builder: (context, _) {
+            return Transform.rotate(
+                angle: _animation.value,
+                child: const Icon(Icons.cached, size: 100));
+          },
+        ),
       ),
+      // 再生、停止、逆再生のボタン
+      floatingActionButton:
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        FloatingActionButton(
+            onPressed: _forward, child: const Icon(Icons.arrow_forward)),
+        FloatingActionButton(onPressed: _stop, child: const Icon(Icons.pause)),
+        FloatingActionButton(
+            onPressed: _reverse, child: const Icon(Icons.arrow_back)),
+      ]),
     );
   }
 }
